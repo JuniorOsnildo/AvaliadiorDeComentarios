@@ -1,0 +1,3 @@
+﻿# Avaliador de comentários
+
+lesgo!
