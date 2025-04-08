@@ -10,7 +10,7 @@ bool corte = false;
 foreach (var v in data)
 {
     if (v == '\n') corte = true;
-    
+
     if (corte)
     {
         if (v != '\n')
