@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 var data = File.ReadAllText("C:\\Users\\alunolages\\PycharmProjects\\PythonProject1\\filme-248825_comentarios.txt");  
 
-LinkedList<string> list = new LinkedList<string>();
+var list = new LinkedList<string>();
 
 bool corte = false;
 
@@ -27,9 +27,9 @@ Console.WriteLine(list.Count);
 
 int h = 0;
 
-foreach (var VARIABLE in list)
+foreach (var variable in list)
 {
     Console.WriteLine(h);
-    Console.WriteLine(VARIABLE);
+    Console.WriteLine(variable);
     h++;
 }
