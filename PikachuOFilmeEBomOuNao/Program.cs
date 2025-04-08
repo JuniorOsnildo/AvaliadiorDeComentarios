@@ -12,6 +12,7 @@ foreach (var v in data)
     if (v == '\n') corte = true;
     //aaaaaaaaaaaaaaaaaaaaaaa
     //compriencivel
+    //outro coiso
     if (corte)
     {
         if (v != '\n')
