@@ -24,3 +24,5 @@ Console.WriteLine($"numero total de comentarios: {listaComentarios.Count}");
 //cria um avaliador dos comentários
 Avaliador avaliador = new Avaliador(listaComentarios); 
 avaliador.AvaliaComentario();
+avaliador.CategorizarComentarios();
+avaliador.VerificaCategoria();
