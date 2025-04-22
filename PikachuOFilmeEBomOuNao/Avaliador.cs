@@ -87,7 +87,36 @@ public class Avaliador(List<Comentario> comentarios)
         return false;
     }
 
-    private void VerificaCategoria()
+    public void CategorizarComentarios()
     {
+        foreach (var coment in comentarios)
+        {
+            if ((coment.CountNegativos - coment.CountPositivos) is -1 or 0 or 1)
+            {
+                coment.Categoria = Categorias.Neutro;
+            }
+            else if (coment.CountNegativos > coment.CountPositivos)
+            {
+                coment.Categoria = Categorias.Ruim;
+            }
+            else if (coment.CountNegativos < coment.CountPositivos)
+            {
+                coment.Categoria = Categorias.Bom;
+            }
+        }
+    }
+
+    public void VerificaCategoria()
+    {
+        double soma = 0;
+
+        foreach (var coment in comentarios)
+        {
+            soma += (float)coment.Categoria;
+        }
+        
+        var nota = soma/comentarios.Count;
+        
+        Console.WriteLine($"Nota final: {nota:F2}");
     }
 }
