@@ -15,12 +15,10 @@ string[] comentarios = Regex.Split(data, @"\r?\n\r?\n");
 List<Comentario> listaComentarios = new List<Comentario>();
 
 //gera lista de comentários e printa na tela
-for (int i = 0; i < comentarios.Length; i++)
+foreach (var comentarioStr in comentarios)
 {
-    //Console.WriteLine(i);
-    Comentario coment =  new Comentario(comentarios[i]);
-    listaComentarios.Add(coment);
-    //Console.WriteLine(listaComentarios[i].Coment);
+    listaComentarios.Add(new Comentario(comentarioStr));
+    //Console.WriteLine(listaComentarios[^1].Coment);
     //Console.WriteLine(new string('-', 100));
 }
 
@@ -43,4 +41,36 @@ avaliador.CalculaPorcentagens(listaNeutro);
 
 avaliador.CalculaNotaFilme();
 
-GeradorArquivo geradorArquivo = new GeradorArquivo();
+//gera o arquivo txt
+string filePath = "../../../Classificados.txt";
+string classificados = "POSITIVOS: \n";
+
+foreach (var comentario in listaBom)
+{
+    classificados += $"\t{comentario.Coment}\n";
+    classificados += $"{new string('-', 100)} \n";
+}
+
+classificados += "\nNEUTROS: \n";
+foreach (var comentario in listaNeutro)
+{
+    classificados += $"\t{comentario.Coment}\n";
+    classificados += $"{new string('-', 100)} \n";
+}
+
+classificados += "\nNEGATIVOS: \n";
+foreach (var comentario in listaRuim)
+{
+    classificados += $"\t{comentario.Coment}\n";
+    classificados += $"{new string('-', 100)} \n";
+}
+
+try
+{
+    File.WriteAllText(filePath, classificados);
+    Console.WriteLine("\nArquivo gerado com sucesso!");
+}
+catch (Exception e)
+{
+    Console.WriteLine($"Erro: {e.Message}");
+}
