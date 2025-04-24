@@ -2,14 +2,14 @@
 
 public class Comentario
 {
-    private readonly string _coment;
+    private readonly string coment;
 
     public Comentario(string coment) => Coment = coment;
 
     public string Coment
     {
-        get => _coment;
-        init => _coment = value ?? throw new ArgumentNullException(nameof(value));
+        get => coment;
+        init => coment = value ?? throw new ArgumentNullException(nameof(value));
     }
 
     public int CountPositivos { get; set; } = 0;
