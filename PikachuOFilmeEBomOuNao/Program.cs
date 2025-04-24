@@ -41,4 +41,36 @@ avaliador.CalculaPorcentagens(listaNeutro);
 
 avaliador.CalculaNotaFilme();
 
-GeradorArquivo geradorArquivo = new GeradorArquivo();
+//gera o arquivo txt
+string filePath = "../../../Classificados.txt";
+string classificados = "POSITIVOS: \n";
+
+foreach (var comentario in listaBom)
+{
+    classificados += $"\t{comentario.Coment}\n";
+    classificados += $"{new string('-', 100)} \n";
+}
+
+classificados += "\nNEUTROS: \n";
+foreach (var comentario in listaNeutro)
+{
+    classificados += $"\t{comentario.Coment}\n";
+    classificados += $"{new string('-', 100)} \n";
+}
+
+classificados += "\nNEGATIVOS: \n";
+foreach (var comentario in listaRuim)
+{
+    classificados += $"\t{comentario.Coment}\n";
+    classificados += $"{new string('-', 100)} \n";
+}
+
+try
+{
+    File.WriteAllText(filePath, classificados);
+    Console.WriteLine("\nArquivo gerado com sucesso!");
+}
+catch (Exception e)
+{
+    Console.WriteLine($"Erro: {e.Message}");
+}
