@@ -12,21 +12,20 @@ var data = File.ReadAllText("../../../Comentarios/filme-248825_comentarios.txt")
 
 //separa comentários do texto lido
 string[] comentarios = Regex.Split(data, @"\r?\n\r?\n");
-List<Comentario> listaComentarios = new List<Comentario>();
+
+//cria um avaliador dos comentários
+Avaliador avaliador = new Avaliador(); 
 
 //gera lista de comentários e printa na tela
 foreach (var comentarioStr in comentarios)
 {
-    listaComentarios.Add(new Comentario(comentarioStr));
-    //Console.WriteLine(listaComentarios[^1].Coment);
+    avaliador.AddComentario(new Comentario(comentarioStr));
+    //Console.WriteLine(comentarioStr);
     //Console.WriteLine(new string('-', 100));
 }
 
 //printa numero de comentários
-Console.WriteLine($"numero total de comentarios: {listaComentarios.Count}");
-
-//cria um avaliador dos comentários
-Avaliador avaliador = new Avaliador(listaComentarios); 
+Console.WriteLine($"numero total de comentarios: {avaliador.Comentarios.Count}");
 
 avaliador.AvaliaComentario();
 avaliador.CategorizaComentarios();
