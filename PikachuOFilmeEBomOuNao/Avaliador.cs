@@ -5,8 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace PikachuOFilmeEBomOuNao;
 
-public class Avaliador(List<Comentario> comentarios)
-
+public class Avaliador()
 {
     private readonly Regex RegexPositivo = new Regex(
         @"\b( bo(m|ns|a(s)?) | am(o|ei|ável)? | excelent(e|íssimo)? | favorit(o|a|ei)?s? | emocion(ei|a|o|ou|ante)?s? | maravilh(a|os[oa]|ad[oa])?s? | ótim[oa]?s? | ador(ei|o|a|ado?s)? |
@@ -26,98 +25,91 @@ public class Avaliador(List<Comentario> comentarios)
         @"\b( não|nem|nunca|sem|jamais|nenhum[a]|falta? )\b",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+    public List<Comentario> Comentarios { get; } = new List<Comentario>();
+
+    public void AddComentario(Comentario comentario)
+    {
+        Comentarios.Add(comentario);
+    }
 
     public void AvaliaComentario()
     {
-        int i = 0;
-        foreach (var coment in comentarios)
+        foreach (var coment in Comentarios)
         {
-            //verifica comentários positivos
-            foreach (Match match in RegexPositivo.Matches(coment.Coment))
+            var palavras = coment.Coment.Split(new[] { ' ', '\r', '\n', '\t', '.', ',', '!', '?', ':', '/', '-' });
+
+            for (int i = 0; i < palavras.Length; i++)
             {
-                string palavra = match.Value;
-                Console.WriteLine(palavra);
-                if (EhNegado(coment.Coment, palavra))
+                //verifica comentários positivos
+                if (RegexPositivo.IsMatch(palavras[i]))
                 {
+                    Console.WriteLine(palavras[i]);
+                    if (!EhNegado(palavras, palavras[i], i))
+                    {
+                        coment.CountPositivos++;
+                        continue;
+                    }
+                
                     coment.CountNegativos++;
+                    continue;
                 }
-                else
+
+                //verifica comentários negativos
+                if (RegexNegativo.IsMatch(palavras[i]))
                 {
+                    Console.WriteLine(palavras[i]);
+                    if (!EhNegado(palavras, palavras[i], i))
+                    {
+                        coment.CountNegativos++;
+                        continue;
+                    }
+                
                     coment.CountPositivos++;
                 }
             }
-
-            //verifica comentários negativos
-            foreach (Match match in RegexNegativo.Matches(coment.Coment))
-            {
-                string palavra = match.Value;
-                Console.WriteLine(palavra);
-                if (EhNegado(coment.Coment, palavra))
-                {
-                    coment.CountPositivos++;
-                }
-                else
-                {
-                    coment.CountNegativos++;
-                }
-            }
-
-            //TODO: apagar esses prints depois
-            Console.WriteLine($"coment {i+1} positivos*: {coment.CountPositivos}");
-            Console.WriteLine($"coment {i+1} negativos*: {coment.CountNegativos}");
-            Console.WriteLine();
-            i++;
+            
+            Console.WriteLine(coment.CountNegativos);
         }
     }
 
-    private bool EhNegado(string comentario, string palavra)
+    private bool EhNegado(string[] palavras, string palavra, int index)
     {
-        var palavras = comentario.Split(new[] { ' ', '\r', '\n', '\t', '.', ',', '!', '?', ':', '/', '-' });
-        for (int i = 0; i < palavras.Length; i++)
+        int start = (index <= 3) ? 0 : index - 3;
+        int end = (index + 3 >= palavra.Length) ? palavra.Length : index + 3;
+        
+        for (int i = start; i < end; i++)
         {
-            if (!RegexNegacoes.IsMatch(palavras[i])) continue;
-            for (int j = 1; j < 4 && i + j < palavras.Length; j++)
-            {
-                if (string.Equals(palavras[i + j], palavra, StringComparison.OrdinalIgnoreCase))
-                {
-                    Match match = RegexNegativo.Match(palavras[i]);
-                    
-                    //TODO: apagar esses prints depois
-                    Console.WriteLine("palavra de negacao: " + palavras[i]);
-                    Console.WriteLine("negado: " + palavras[i + j]);
-                    
-                    return true;
-                }
-            }
+            if (RegexNegacoes.IsMatch(palavras[i])) return true;
         }
         return false;
     }
 
     public void CategorizaComentarios()
     {
-        foreach (var coment in comentarios)
+        foreach (var coment in Comentarios)
         {
             int diferenca = coment.CountPositivos - coment.CountNegativos;
 
-            if (diferenca is -1 or 0 or 1)
-            {
-                coment.Categoria = Categorias.Neutro;
-            }
-            else if (diferenca > 1)
-            {
-                coment.Categoria = Categorias.Bom;
-            }
-            else
+            if (diferenca < -1)
             {
                 coment.Categoria = Categorias.Ruim;
+                continue;
             }
+            
+            if (diferenca > 1)
+            {
+                coment.Categoria = Categorias.Bom;
+                continue;
+            }
+            
+            coment.Categoria = Categorias.Neutro;
         }
     }
 
     public List<Comentario> GeraListaPorCategoria(Categorias categoria)
     {
         List<Comentario> listaGenerica = new List<Comentario>(); 
-        foreach (var coment in comentarios)
+        foreach (var coment in Comentarios)
         {
             if (coment.Categoria == categoria)
             {
@@ -130,7 +122,7 @@ public class Avaliador(List<Comentario> comentarios)
     public void CalculaPorcentagens(List<Comentario> lista)
     {
         Categorias categoria = lista.First().Categoria;
-        float porcentagem = (float)lista.Count / comentarios.Count;
+        float porcentagem = (float)lista.Count / Comentarios.Count;
         Console.WriteLine($"Porcentagem comentarios {categoria}: " + porcentagem * 100 + "%");
     }
 
@@ -139,12 +131,12 @@ public class Avaliador(List<Comentario> comentarios)
     {
         float soma = 0;
 
-        foreach (var coment in comentarios)
+        foreach (var coment in Comentarios)
         {
             soma += (float)coment.Categoria;
         }
 
-        float nota = (float)soma / comentarios.Count;
+        float nota = (float)soma / Comentarios.Count;
         Console.WriteLine($"Nota final filme: {nota:F2}");
     }
 }
