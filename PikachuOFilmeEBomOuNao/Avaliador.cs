@@ -11,19 +11,24 @@ public class Avaliador()
         @"\b( bo(m|ns|a(s)?) | am(o|ei|ável)? | excelent(e|íssimo)? | favorit(o|a|ei)?s? | emocion(ei|a|o|ou|ante)?s? | maravilh(a|os[oa]|ad[oa])?s? | ótim[oa]?s? | ador(ei|o|a|ado?s)? |
                                                   gost(ei|o|a|os[oa])?s? | fof([oa]|inh[oa]|uch[oa])?s? | diver(ção|tid[oa])?s? | perfei(ção|t[oa])?s? | fantástic[oa]?s? | incríve(l|is)? | impression(ante|ei|amos)? |
                                                   lind(íssimo|[oa])?s? | lega(l|is)? | sensaciona(l|is)? | positiv(amente|[oa])?s? | nostalgi(a|co)?s? | surpre(endente|s[oa])?s? | carism(a|átic[oa])?s? | 
-                                                  épic([oa]|amente)?s? | inspira(dor(es)?|ção|ções)? | cert[oa]s? | bacan[oa]s? )\b",
+                                                  épic([oa]|amente)?s? | inspira(dor(es)?|ção|ções)? | cert[oa]s? | bacan[oa]s? | bel(íssimo|[oa]|eza)?s? | bonit[oa]s? | superior[a]?s? )\b",
         RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace | RegexOptions.IgnoreCase);
 
     private readonly Regex RegexNegativo = new Regex(
         @"\b ( mau | mal(dade|dos[oa]|vad[oa])?s? | rui(m|ns)? | lix(o|ão)?s? | infeliz(mente)? | insuportáve(l|is)? | irrita(nte)?s? | frac([oa]te)?s? | burr[oa]s? | best(a|eira)?s? | bob(inh[oa]|[oa])?s? | chat(inh[oa]|[oa])?s? |
                                                     mínim[o]s? | fal(had[oa]|id[oa]|h[oa])?s? | problema(tiza(r|d[oa])?)? | decepcion(ante|ou|a|ei)? |  perdid[oa]s? | forçad[oa] | (en)?tedi(o|ante)?s? | 
                                                     paia[s]? | preguiç(a|os[oa])?s? | desanima(dor[ae])?s? | bost(a|il)?s?| merd(a|inha)?s? | imbeci(l|lidade)?s? | vagabund([oa]|agem)?s? | ignoran(te|cia)?s? | 
-                                                    pervers(idade|[oa]|amente)?s? | racis(ta|cismo)?s? | xenofob([oa]|ia)?s? | machis(ta|mo)?s? | homofobi(a|co)?s? | péssim[oa]s? | pior(es)? | errad[oa]s? | fei(nh[oa]|[oa])s? )\b",
+                                                    pervers(idade|[oa]|amente)?s? | racis(ta|cismo)?s? | xenofob([oa]|ia)?s? | machis(ta|mo)?s? | homofobi(a|co)?s? | péssim[oa]s? |
+                                                    pior(es)? | errad[oa]s? | fei(nh[oa]|[oa])s? | lent([oa]|idão)?s? )\b",
         RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace | RegexOptions.IgnoreCase);
 
     private readonly Regex RegexNegacoes = new Regex(
-        @"\b( não|nem|nunca|sem|jamais|nenhum[a]|falta? )\b",
-        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        @"\b( não | nem | nunca | sem | jamais |nenhum[a]|falta )\b",
+        RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace | RegexOptions.IgnoreCase);
+
+    private readonly Regex RegexIntensificadores = new Regex(
+        @"\b( muit[oa]s? | bastante(s)? | tão | demais | mais | tant[oa]s? | extremamente | super | mega | demasiad([oa]|amente) )\b",
+        RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace | RegexOptions.IgnoreCase);
 
     public List<Comentario> Comentarios { get; } = new List<Comentario>();
 
@@ -43,8 +48,14 @@ public class Avaliador()
                 //verifica comentários positivos
                 if (RegexPositivo.IsMatch(palavras[i]))
                 {
-                    Console.WriteLine(palavras[i]);
-                    if (!EhNegado(palavras, palavras[i], i))
+                    //intensificadores
+                    if (EhNegadoOuIntensificado(palavras, palavras[i], i, RegexIntensificadores))
+                    {
+                        coment.CountPositivos += 2;
+                        continue;
+                    }
+                    //negações
+                    if (!EhNegadoOuIntensificado(palavras, palavras[i], i, RegexNegacoes))
                     {
                         coment.CountPositivos++;
                         continue;
@@ -57,8 +68,15 @@ public class Avaliador()
                 //verifica comentários negativos
                 if (RegexNegativo.IsMatch(palavras[i]))
                 {
-                    Console.WriteLine(palavras[i]);
-                    if (!EhNegado(palavras, palavras[i], i))
+                    //intensificadores
+                    if (EhNegadoOuIntensificado(palavras, palavras[i], i, RegexIntensificadores)) 
+                    {
+                        coment.CountNegativos += 2;
+                        continue;
+                    }
+                    
+                    //negações
+                    if (!EhNegadoOuIntensificado(palavras, palavras[i], i, RegexNegacoes))
                     {
                         coment.CountNegativos++;
                         continue;
@@ -67,23 +85,21 @@ public class Avaliador()
                     coment.CountPositivos++;
                 }
             }
-            
-            Console.WriteLine(coment.CountNegativos);
         }
     }
 
-    private bool EhNegado(string[] palavras, string palavra, int index)
+    private bool EhNegadoOuIntensificado(string[] palavras, string palavra, int index, Regex tipoRegex)
     {
         int start = (index <= 3) ? 0 : index - 3;
-        int end = (index + 3 >= palavra.Length) ? palavra.Length : index + 3;
-        
+        int end = index; 
+
         for (int i = start; i < end; i++)
         {
-            if (RegexNegacoes.IsMatch(palavras[i])) return true;
+            if (tipoRegex.IsMatch(palavras[i])) return true;
         }
         return false;
     }
-
+    
     public void CategorizaComentarios()
     {
         foreach (var coment in Comentarios)
@@ -95,20 +111,20 @@ public class Avaliador()
                 coment.Categoria = Categorias.Ruim;
                 continue;
             }
-            
+
             if (diferenca > 1)
             {
                 coment.Categoria = Categorias.Bom;
                 continue;
             }
-            
+
             coment.Categoria = Categorias.Neutro;
         }
     }
 
     public List<Comentario> GeraListaPorCategoria(Categorias categoria)
     {
-        List<Comentario> listaGenerica = new List<Comentario>(); 
+        List<Comentario> listaGenerica = new List<Comentario>();
         foreach (var coment in Comentarios)
         {
             if (coment.Categoria == categoria)
@@ -126,7 +142,6 @@ public class Avaliador()
         Console.WriteLine($"Porcentagem comentarios {categoria}: " + porcentagem * 100 + "%");
     }
 
-
     public void CalculaNotaFilme()
     {
         float soma = 0;
@@ -137,6 +152,6 @@ public class Avaliador()
         }
 
         float nota = (float)soma / Comentarios.Count;
-        Console.WriteLine($"Nota final filme: {nota:F2}");
+        Console.WriteLine($"\nNota final filme: {nota:F2}");
     }
 }
