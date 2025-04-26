@@ -8,7 +8,7 @@ using PikachuOFilmeEBomOuNao;
 */
 
 //lê arquivo 
-var data = File.ReadAllText("../../../Comentarios/filme-248825_comentarios.txt");
+var data = File.ReadAllText("../../../Comentarios/filme-133392_comentarios.txt");
 
 //separa comentários do texto lido
 string[] comentarios = Regex.Split(data, @"\r?\n\r?\n");
@@ -20,12 +20,10 @@ Avaliador avaliador = new Avaliador();
 foreach (var comentarioStr in comentarios)
 {
     avaliador.AddComentario(new Comentario(comentarioStr));
-    //Console.WriteLine(comentarioStr);
-    //Console.WriteLine(new string('-', 100));
 }
 
 //printa numero de comentários
-Console.WriteLine($"numero total de comentarios: {avaliador.Comentarios.Count}");
+Console.WriteLine($"Número total de comentários: {avaliador.Comentarios.Count} \n");
 
 avaliador.AvaliaComentario();
 avaliador.CategorizaComentarios();
